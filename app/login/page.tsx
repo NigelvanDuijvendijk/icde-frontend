@@ -1,7 +1,6 @@
-
+'use client';
 import LoginForm from "@/app/forms/login/loginForm";
 import Head from "next/head";
-import Image from "next/image";
  
 export default function Login() {
   return (
