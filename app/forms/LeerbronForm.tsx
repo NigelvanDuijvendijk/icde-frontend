@@ -1,13 +1,14 @@
 import { Form, Input } from "@nextui-org/react";
 import React, { FormEvent } from "react";
 import { Leerbron } from "../types/types";
-import { postLeerbron } from "../apiService";
 
 type LeerbronFormProps = {
-    onderwijseenheidId?: number;
+    onderwijscode?: String;
+    setSavedLeerbron: (value: Leerbron | null, isEdit: boolean) => void;
+    editLeerbron?: Partial<Leerbron> | undefined;
 };
 
-export const LeerbronForm: React.FC<LeerbronFormProps> = ({ onderwijseenheidId }) => {
+export const LeerbronForm: React.FC<LeerbronFormProps> = ({ onderwijscode, setSavedLeerbron, editLeerbron }) => {
     const [errors, setErrors] = React.useState({});
     const [submitted, setSubmitted] = React.useState(null);
 
@@ -16,12 +17,15 @@ export const LeerbronForm: React.FC<LeerbronFormProps> = ({ onderwijseenheidId }
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         e.preventDefault();
-        const leerbron: Partial<Leerbron> = {
+
+        const leerbron: Leerbron = {
             naam: data.Naam.toString(),
-            link: data.Link.toString()
+            link: data.Link.toString(),
+            id: (editLeerbron?.id ?? 0),
+            isDeleted: false,
         }  
-        if(onderwijseenheidId !== undefined) {
-            postLeerbron(leerbron, onderwijseenheidId!);      
+        if(onderwijscode !== undefined) {
+            setSavedLeerbron(leerbron, editLeerbron !== undefined);
         }
     }
     
@@ -35,6 +39,7 @@ export const LeerbronForm: React.FC<LeerbronFormProps> = ({ onderwijseenheidId }
                 id="leerbronForm"
                 >
                     <Input
+                        defaultValue={editLeerbron?.naam}
                         isRequired
                         errorMessage={({validationDetails}) => {
                             if (validationDetails.valueMissing) {
@@ -49,6 +54,7 @@ export const LeerbronForm: React.FC<LeerbronFormProps> = ({ onderwijseenheidId }
                         placeholder="Voer een naam in"
                     />
                     <Input
+                        defaultValue={editLeerbron?.link}
                         isRequired
                         errorMessage={({validationDetails}) => {
                             if (validationDetails.valueMissing) {

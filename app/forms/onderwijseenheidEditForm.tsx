@@ -1,9 +1,13 @@
 import { Form, Input } from "@nextui-org/react";
 import React, { FormEvent } from "react";
-import { postOnderwijseenheid } from "../apiService";
 import { Onderwijseenheid } from "../types/types";
 
-export default function OnderwijseenheidForm() {
+type OnderwijseenheidEditFormProps = {
+    onderwijseenheid?: Partial<Onderwijseenheid>;
+    setOnderwijseenheid: (value: Partial<Onderwijseenheid> | null) => void;
+};
+
+export const OnderwijseenheidEditForm: React.FC<OnderwijseenheidEditFormProps> = ({ onderwijseenheid, setOnderwijseenheid }) => {
     const [errors, setErrors] = React.useState({});
     const [submitted, setSubmitted] = React.useState(null);
 
@@ -12,17 +16,16 @@ export default function OnderwijseenheidForm() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         e.preventDefault();
-        const onderwijseenheid: Partial<Onderwijseenheid> = {
-            naam: data.Naam.toString(),
-            studiepunten: Number(data.Studiepunten),
-            onderwijscode: data.Onderwijscode.toString(),
-            omschrijving: data.Omschrijving.toString(),
-            doel: data.Doel.toString(),
-            samenhang: data.Samenhang.toString(),
-            version: 0,
-            isPublished: true
-        } 
-        postOnderwijseenheid(onderwijseenheid);
+        onderwijseenheid!.naam = data.Naam.toString();
+        onderwijseenheid!.studiepunten = parseInt(data.Studiepunten.toString());
+        onderwijseenheid!.onderwijscode = data.Onderwijscode.toString();
+        onderwijseenheid!.omschrijving = data.Omschrijving.toString();
+        onderwijseenheid!.doel = data.Doel.toString();
+        onderwijseenheid!.samenhang = data.Samenhang.toString();
+        onderwijseenheid!.isPublished = false;
+        if(onderwijseenheid !== undefined) {
+            setOnderwijseenheid(onderwijseenheid!);
+        }
     }
     
     return (
@@ -32,10 +35,11 @@ export default function OnderwijseenheidForm() {
         validationErrors={errors}
         onReset={() => setSubmitted(null)}
         onSubmit={onSubmit}
-        id="onderwijseenheidForm"
+        id="onderwijseenheidEditForm"
         >
             <Input
                 isRequired 
+                defaultValue={onderwijseenheid?.naam}
                 errorMessage={({validationDetails}) => {
                     if (validationDetails.valueMissing) {
                     return "Voer een naam in";
@@ -50,6 +54,7 @@ export default function OnderwijseenheidForm() {
             />
             <Input
                 isRequired
+                defaultValue={onderwijseenheid?.studiepunten?.toString()}
                 errorMessage={({validationDetails}) => {
                     if (validationDetails.valueMissing) {
                     return "Voer het aantal studiepunten in";
@@ -59,11 +64,13 @@ export default function OnderwijseenheidForm() {
                 }}
                 label="Studiepunten"
                 labelPlacement="outside"
+                type="number"
                 name="Studiepunten"
                 placeholder="Voer het aantal studiepunten in"
             />
             <Input
                 isRequired
+                defaultValue={onderwijseenheid?.onderwijscode}
                 errorMessage={({validationDetails}) => {
                     if (validationDetails.valueMissing) {
                     return "Voer een onderwijscode in";
@@ -78,6 +85,7 @@ export default function OnderwijseenheidForm() {
             />
             <Input
                 isRequired
+                defaultValue={onderwijseenheid?.omschrijving}
                 errorMessage={({validationDetails}) => {
                     if (validationDetails.valueMissing) {
                     return "Voer een omschrijving in";
@@ -92,6 +100,7 @@ export default function OnderwijseenheidForm() {
             />
             <Input
                 isRequired
+                defaultValue={onderwijseenheid?.doel}
                 errorMessage={({validationDetails}) => {
                     if (validationDetails.valueMissing) {
                     return "Voer een doel in";
@@ -106,6 +115,7 @@ export default function OnderwijseenheidForm() {
             />
                 <Input
                 isRequired
+                defaultValue={onderwijseenheid?.samenhang}
                 errorMessage={({validationDetails}) => {
                     if (validationDetails.valueMissing) {
                     return "Voer een samenhang in";

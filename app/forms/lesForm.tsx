@@ -1,14 +1,14 @@
 import { Form, Input } from "@nextui-org/react";
 import React, { FormEvent } from "react";
-import { Leeruitkomst } from "../types/types";
+import { Les } from "../types/types";
+import { postLes } from "../apiService";
 
-type LeeruitkomstFormProps = {
-    onderwijscode?: String;
-    setSavedLeeruitkomst: (value: Leeruitkomst | null, isEdit: boolean) => void;
-    editingLeeruitkomst?: Partial<Leeruitkomst> | undefined;
+type LesFormProps = {
+    leereenheidId?: number;
+    editingLes?: Partial<Les> | undefined;
 };
 
-export const LeeruitkomstForm: React.FC<LeeruitkomstFormProps> = ({ onderwijscode, setSavedLeeruitkomst, editingLeeruitkomst }) => {
+export const LesForm: React.FC<LesFormProps> = ({ leereenheidId, editingLes }) => {
     
     const [errors, setErrors] = React.useState({});
     const [submitted, setSubmitted] = React.useState(null);
@@ -18,16 +18,14 @@ export const LeeruitkomstForm: React.FC<LeeruitkomstFormProps> = ({ onderwijscod
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         e.preventDefault();
-        const leeruitkomst: Leeruitkomst = {
-            naam: data.Naam.toString(),
+        const les: Partial<Les> = {
             omschrijving: data.Omschrijving.toString(),
-            id: (editingLeeruitkomst?.id ?? 0),
-            leereenheden: editingLeeruitkomst?.leereenheden ?? []
+            tijdsduur: parseInt(data.tijdsduur.toString())
         }  
 
-        if(leeruitkomst != null){
-            setSavedLeeruitkomst(leeruitkomst!, editingLeeruitkomst !== undefined);
-        }        
+        if(leereenheidId !== undefined) {
+           postLes(les, leereenheidId!);      
+        }
     }
     
     return (
@@ -37,25 +35,10 @@ export const LeeruitkomstForm: React.FC<LeeruitkomstFormProps> = ({ onderwijscod
                 validationErrors={errors}
                 onReset={() => setSubmitted(null)}
                 onSubmit={onSubmit}
-                id="leeruitkomstForm"
+                id="lesForm"
                 >
                     <Input
-                        defaultValue={editingLeeruitkomst?.naam}
-                        isRequired
-                        errorMessage={({validationDetails}) => {
-                            if (validationDetails.valueMissing) {
-                            return "Voer een naam in";
-                            }
-
-                            return "Naam is incorrect";
-                        }}
-                        label="Naam"
-                        labelPlacement="outside"
-                        name="Naam"
-                        placeholder="Voer een naam in"
-                    />
-                    <Input
-                        defaultValue={editingLeeruitkomst?.omschrijving}
+                        defaultValue={editingLes?.omschrijving}
                         isRequired
                         errorMessage={({validationDetails}) => {
                             if (validationDetails.valueMissing) {
@@ -68,6 +51,22 @@ export const LeeruitkomstForm: React.FC<LeeruitkomstFormProps> = ({ onderwijscod
                         labelPlacement="outside"
                         name="Omschrijving"
                         placeholder="Voer een omschrijving in"
+                    />
+                    <Input
+                        defaultValue={editingLes?.tijdsduur?.toString()}
+                        isRequired
+                        errorMessage={({validationDetails}) => {
+                            if (validationDetails.valueMissing) {
+                            return "Voer een tijdsduur in";
+                            }
+
+                            return "omschrijving is incorrect";
+                        }}
+                        label="Tijdsduur"
+                        labelPlacement="outside"
+                        name="tijdsduur"
+                        placeholder="Voer een tijdsduur in"
+                        type="number"
                     />
             </Form>
     );

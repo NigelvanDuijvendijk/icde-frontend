@@ -9,18 +9,27 @@ export type Onderwijseenheid = {
     samenhang: string;
     studielast: number;
     compleet: boolean;
-    leerbron: Leerbron;
-    leeruitkomst: Leeruitkomst;
+    leerbron: Leerbron[];
+    leeruitkomst: Leeruitkomst[];
     template: Template;
-    beoordeling: Beoordeling;
+    beoordeling: Beoordeling[];
     ontwikkelaars: Ontwikkelaar[]
     opleidingsprofielen: Opleidingsprofiel[]
+    version: number;
+    isPublished: boolean;
 };
+
+export type AuthenticationToken = {
+    token: string;
+    createdAt: Date;
+    expiresAt: Date;
+}
 
 export type Leerbron = {
     id: number;
     naam: string;
     link: string;
+    isDeleted: boolean;
 };
 
 export type Leeruitkomst = {
@@ -45,38 +54,93 @@ export type Template = {
 
 export type Beoordeling = {
     id: number;
-    code: string;
     onderbouwing: string;
     minimaleLeereenheden: number;
     omschrijving: string;
+    methodiek: Methodiek;
 };
 
 export type Ontwikkelaar = {
     id: number;
     email: string;
-    isActive: Boolean;
+    hashedPassword: string;
+    isActive: boolean;
 };
 
 export type Opleidingsprofiel = {
-    id: number;
+    id: number; 
     naam: string;
+    opleiding: Opleiding;
+    isDeleted: boolean;
 };
 
 export type Opleiding = {
     id: number;
     naam: string;
-    opleidingsprofielen: Opleidingsprofiel[]
+    isDeleted: boolean;
 }
 
 export type Les = {
     id: number;
-    naam: string;
     omschrijving: string;
+    tijdsduur: number;
     leerdoelen: Leereenheid[];
+}
+
+export type Methodiek = {
+    id: number;
+    naam: string;
+    beoordeling: Beoordeling;
+}
+
+export type OnderwijseenheidVersion = {
+    onderwijscode: string;
+    version: number;
+    updated: Date;
 }
 
 export enum ExportFormaat {
 	PDF,
-	XLSX,
-	OSV
+	CSV,
+	XLSX
+}
+
+export const formats = [
+    {
+        key: "pdf",
+        label: "PDF"
+    },
+    {
+        key: "csv",
+        label: "CSV"
+    },
+    {
+        key: "xlsx",
+        label: "XLSX"
+    }
+  ];
+
+export function stringToExportFormat(exportFormat: string): ExportFormaat {
+    switch(exportFormat) {
+        case "PDF":
+            return ExportFormaat.PDF;
+        case "CSV":
+            return ExportFormaat.CSV;
+        case "XLSX":
+            return ExportFormaat.XLSX;
+        default:
+            return ExportFormaat.PDF;
+    }
+}
+
+export function exportFormatToString(exportFormat: ExportFormaat): string {
+    switch(exportFormat) {
+        case ExportFormaat.PDF:
+            return "PDF";
+        case ExportFormaat.CSV:
+            return "CSV";
+        case ExportFormaat.XLSX:
+            return "XLSX";
+    }
+    return "PDF";
 }

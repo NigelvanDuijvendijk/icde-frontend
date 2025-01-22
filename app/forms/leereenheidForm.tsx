@@ -1,14 +1,14 @@
 import { Form, Input } from "@nextui-org/react";
 import React, { FormEvent } from "react";
-import { Leereenheid, Leeruitkomst } from "../types/types";
-import { postLeereenheid, postLeeruitkomst } from "../apiService";
+import { Leereenheid } from "../types/types";
 
 type LeereenheidFormProps = {
-    onderwijseenheidId?: number;
     leeruitkomstId?: number | undefined;
+    setSavedLeereenheid: (leereenheid: Leereenheid, isEdit: boolean) => void;
+    editingLeereenheid?: Partial<Leereenheid> | undefined;
 };
 
-export const LeereenheidForm: React.FC<LeereenheidFormProps> = ({onderwijseenheidId, leeruitkomstId}) => {
+export const LeereenheidForm: React.FC<LeereenheidFormProps> = ({leeruitkomstId, setSavedLeereenheid, editingLeereenheid}) => {
     
     const [errors, setErrors] = React.useState({});
     const [submitted, setSubmitted] = React.useState(null);
@@ -17,15 +17,15 @@ export const LeereenheidForm: React.FC<LeereenheidFormProps> = ({onderwijseenhei
         const form = e.target;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        console.log("Submitting");
         e.preventDefault();
-        const leereenheid: Partial<Leereenheid> = {
+        const leereenheid: Leereenheid = {
             naam: data.Naam.toString(),
-            omschrijving: data.Omschrijving.toString()
+            omschrijving: data.Omschrijving.toString(),
+            id: (editingLeereenheid?.id ?? 0),
         }  
 
-        if(leeruitkomstId !== undefined) {
-            postLeereenheid(leereenheid, leeruitkomstId!);      
+        if(leereenheid !== undefined) {
+            setSavedLeereenheid(leereenheid, editingLeereenheid !== undefined); 
         }
     }
     
@@ -39,6 +39,7 @@ export const LeereenheidForm: React.FC<LeereenheidFormProps> = ({onderwijseenhei
                 id="leereenheidForm"
                 >
                     <Input
+                        defaultValue={editingLeereenheid?.naam}
                         isRequired
                         errorMessage={({validationDetails}) => {
                             if (validationDetails.valueMissing) {
@@ -53,6 +54,7 @@ export const LeereenheidForm: React.FC<LeereenheidFormProps> = ({onderwijseenhei
                         placeholder="Voer een naam in"
                     />
                     <Input
+                        defaultValue={editingLeereenheid?.omschrijving}
                         isRequired
                         errorMessage={({validationDetails}) => {
                             if (validationDetails.valueMissing) {
