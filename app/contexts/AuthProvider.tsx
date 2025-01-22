@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AuthenticationToken, Ontwikkelaar } from '../types/types';
-import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
+import axios from 'axios';
 
-// Define the shape of the auth context
 interface AuthContextType {
   user: Partial<Ontwikkelaar> | undefined;
   setUser: React.Dispatch<React.SetStateAction<Partial<Ontwikkelaar> | undefined>>;
@@ -11,10 +10,8 @@ interface AuthContextType {
   logout: () => void;
 }
 
-// Create a context for the user's auth state
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Provider component that wraps your app and makes the auth state available to any child component that calls `useAuth()`.
 interface AuthProviderProps {
   children: React.ReactNode;
 }
@@ -48,15 +45,10 @@ useEffect(() => {
 useEffect(() => {
     if (user) {
         localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      //  localStorage.removeItem("user");
     }
 
     if (authenticationToken) {
         localStorage.setItem("authenticationToken", JSON.stringify(authenticationToken));
-    } else {
-       // localStorage.removeItem("authenticationToken");
-      //  delete axios.defaults.headers.common['Authorization'];
     }
 }, [user, authenticationToken]);
 

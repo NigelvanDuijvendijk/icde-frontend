@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {NextUIProvider} from "@nextui-org/react";
 import Navigation from "./ui-components/Navigation";
+import { AuthProvider } from "./contexts/AuthProvider";
 
 
 const geistSans = Geist({
@@ -26,8 +27,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextUIProvider>
-          <Navigation/>
-          {children}
+          <AuthProvider>
+            <Navigation/>
+              {children}
+          </AuthProvider>
         </NextUIProvider>
       </body>
     </html>
