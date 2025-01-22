@@ -15,18 +15,15 @@ import {
     ModalBody,
     ModalFooter,
     useDisclosure,
-    Select,
-    SelectItem,
   } from "@nextui-org/react";
   
   import { useRouter } from 'next/navigation'
-import OnderwijseenheidForm from "../forms/onderwijseenheidForm";
 import React from "react";
-import { deleteOnderwijseenheid, downloadBeoordeling, downloadOweDescription, getOnderwijseenheden, getOpleidingen, getOpleidingsprofielen } from "../apiService";
-import { formats, Onderwijseenheid, Opleiding, Opleidingsprofiel, stringToExportFormat } from "../types/types";
+import { deleteOpleiding, getOpleidingen, postOpleiding } from "../apiService";
+import { Opleiding } from "../types/types";
 import { useAuth } from "../contexts/AuthProvider";
 import NotAllowed from "../ui-components/NotAllowed";
-import OpleidingForm from "../forms/opleidingForm";
+import { OpleidingForm } from "../forms/opleidingForm";
 
   const columns: any[] | undefined  = [
       {
@@ -34,14 +31,19 @@ import OpleidingForm from "../forms/opleidingForm";
         label: "Naam"
       },
       {
+        key: "bewerken",
+        label: "Bewerken"
+      },
+      {
         key: "verwijderen",
         label: "Verwijderen"
       }
   ]
 
-export default function profielen() { 
-  const [rows, setRows] = React.useState<Opleiding[]>([]);
+export default function Profielen() { 
+  const [rows, setRows] = React.useState<Partial<Opleiding>[]>([]);
   const [selectedFormat, setSelectedFormat] = React.useState<string | undefined>();
+  const [editingOpleiding, setEditingOpleiding] = React.useState<Partial<Opleiding> | undefined>();
   const router = useRouter()
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const { user, authenticationToken } = useAuth();
@@ -58,21 +60,37 @@ export default function profielen() {
     }
   }, [authenticationToken]);
 
-  const renderCell = React.useCallback((opleiding: Opleiding, columnKey: string | number) => {
+  const renderCell = React.useCallback((opleiding: Partial<Opleiding>, columnKey: string | number) => {
       const cellValue = opleiding[columnKey as keyof Opleiding];
       switch (columnKey) {
-        case "edit":
+        case "bewerken":
             return (
-              <Button onPress={() => router.push('/addOnderwijseenheid?id=' + opleiding.id)} color="primary">Bewerken</Button>
+              <Button onPress={() => {onOpen(); setEditingOpleiding(opleiding)}} color="primary">Bewerken</Button>
             );
         case "verwijderen":
               return (
-                <Button onPress={() =>{}} color="primary">Verwijderen</Button>
+                <Button onPress={() => {}} color="primary">Verwijderen</Button>
               );
         default: 
           return cellValue as React.ReactNode; 
       }
     }, [selectedFormat]);
+
+    function removeOpleiding (opleiding: Partial<Opleiding>) {
+        setRows(rows?.filter((m) => m.id !== opleiding.id));
+        if (opleiding.id !== undefined) {
+            deleteOpleiding(opleiding.id);
+        }
+    }
+    function setSavedOpleiding (opleiding: Partial<Opleiding>, isEdit: boolean) {
+        if (isEdit) {
+            setRows(rows?.map((m) => m.id === opleiding.id ? opleiding : m));
+        } else {
+            setRows([...(rows || []), opleiding]);
+        }
+
+        postOpleiding(opleiding);
+    }
 
     return (
     <>
@@ -91,7 +109,7 @@ export default function profielen() {
               <>
                 <ModalHeader className="flex flex-col gap-1">Opleiding toevoegen</ModalHeader>
                 <ModalBody>
-                  <OpleidingForm/>
+                  <OpleidingForm setSavedOpleiding={setSavedOpleiding} editingOpleiding={editingOpleiding} />
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="light" onPress={onClose}>
@@ -110,7 +128,7 @@ export default function profielen() {
                   {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
               </TableHeader>
               <TableBody items={rows}>
-                  {(item: Opleiding) => (
+                  {(item: Partial<Opleiding>) => (
                   <TableRow key={item.id}>
                       {(columnKey) => <TableCell key={columnKey}>{renderCell(item, columnKey)}</TableCell>}
                   </TableRow>

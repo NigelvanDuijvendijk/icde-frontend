@@ -1,13 +1,13 @@
 import { Form, Input } from "@nextui-org/react";
 import React, { FormEvent } from "react";
-import { Opleiding } from "../types/types";
+import { Methodiek } from "../types/types";
 
-type OpleidingFormProps = {
-    editingOpleiding?: Partial<Opleiding> | undefined;
-    setSavedOpleiding: (opleiding: Partial<Opleiding>, isEdit: boolean) => void;
+type MethodiekFormProps = {
+    editingMethodiek?: Partial<Methodiek> | undefined;
+    setSavedMethodiek: (methodiek: Partial<Methodiek>, isEdit: boolean) => void;
 };
-export const OpleidingForm: React.FC<OpleidingFormProps> = ({ editingOpleiding, setSavedOpleiding }) => {    
-    
+
+export const MethodiekenForm: React.FC<MethodiekFormProps> = ({ editingMethodiek, setSavedMethodiek }) => {    
     const [errors, setErrors] = React.useState({});
     const [submitted, setSubmitted] = React.useState(null);
 
@@ -16,12 +16,12 @@ export const OpleidingForm: React.FC<OpleidingFormProps> = ({ editingOpleiding, 
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         e.preventDefault();
-        const opleiding: Partial<Opleiding> = {
+        const methodiek: Partial<Methodiek> = {
             naam: data.Naam.toString(),
-            id: (editingOpleiding?.id ?? 0),
+           // beoordeling: selectedBeoordeling,
+           id: (editingMethodiek?.id ?? 0), 
         }  
-
-        setSavedOpleiding(opleiding, editingOpleiding !== undefined);
+        setSavedMethodiek(methodiek, editingMethodiek !== undefined); 
     }
     
     return (
@@ -31,10 +31,10 @@ export const OpleidingForm: React.FC<OpleidingFormProps> = ({ editingOpleiding, 
                 validationErrors={errors}
                 onReset={() => setSubmitted(null)}
                 onSubmit={onSubmit}
-                id="opleidingForm"
+                id="methodiekForm"
                 >
                     <Input
-                        defaultValue={editingOpleiding?.naam}
+                        defaultValue={editingMethodiek?.naam}
                         isRequired
                         errorMessage={({validationDetails}) => {
                             if (validationDetails.valueMissing) {

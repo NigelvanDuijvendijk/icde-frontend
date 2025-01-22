@@ -17,33 +17,36 @@ import {
     useDisclosure
   } from "@nextui-org/react";
   
-  import { useRouter } from 'next/navigation'
 import React from "react";
-import { getOpleidingsprofielen } from "../apiService";
+import { deleteOpleidingsprofiel, getOpleidingsprofielen, postOpleidingsprofiel } from "../apiService";
 import { Opleidingsprofiel } from "../types/types";
 import { useAuth } from "../contexts/AuthProvider";
 import NotAllowed from "../ui-components/NotAllowed";
-import OpleidingsprofielForm from "../forms/opleidingsprofielForm";
+import { OpleidingsprofielForm } from "../forms/opleidingsprofielForm";
 
   const columns: any[] | undefined  = [
-      {
+        {
         key: "naam",
         label: "Naam"
-      },
-      {
+        },
+        {
         key: "opleiding",
         label: "Opleiding"
-      },
-      {
+        },
+        {
+        key: "bewerken",
+        label: "Bewerken"
+        },
+        {
         key: "verwijderen",
         label: "Verwijderen"
-      }
+        }
   ]
 
-export default function opleidingsprofielen() { 
+export default function Opleidingsprofielen() { 
   const [rows, setRows] = React.useState<Opleidingsprofiel[]>([]);
   const [selectedFormat, setSelectedFormat] = React.useState<string | undefined>();
-  const router = useRouter()
+  const [editingOpleidingsprofiel, setEditingOpleidingsprofiel] = React.useState<Opleidingsprofiel | undefined>();
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const { user, authenticationToken } = useAuth();
 
@@ -62,13 +65,13 @@ export default function opleidingsprofielen() {
   const renderCell = React.useCallback((opleidingsprofiel: Opleidingsprofiel, columnKey: string | number) => {
       const cellValue = opleidingsprofiel[columnKey as keyof Opleidingsprofiel];
       switch (columnKey) {
-        case "edit":
+        case "bewerken":
             return (
-              <Button onPress={() => router.push('/addOnderwijseenheid?id=' + opleidingsprofiel.id)} color="primary">Bewerken</Button>
+              <Button onPress={() => {onOpen(); setEditingOpleidingsprofiel(opleidingsprofiel)}} color="primary">Bewerken</Button>
             );
         case "verwijderen":
               return (
-                <Button onPress={() =>{}} color="primary">Verwijderen</Button>
+                <Button onPress={() =>{removeOpleidingsprofiel(opleidingsprofiel)}} color="primary">Verwijderen</Button>
               );
         case "opleiding":
             return getKeyValue(opleidingsprofiel.opleiding, 'naam');
@@ -76,6 +79,23 @@ export default function opleidingsprofielen() {
           return cellValue as React.ReactNode; 
       }
     }, [selectedFormat]);
+
+    function removeOpleidingsprofiel (opleidingsprofiel: Opleidingsprofiel) {
+        setRows(rows?.filter((m) => m.id !== opleidingsprofiel.id));
+        if (opleidingsprofiel.id !== undefined) {
+          deleteOpleidingsprofiel(opleidingsprofiel.id);
+        }
+    }
+
+    function setSavedOpleidingsprofiel (opleidingsprofiel: Partial<Opleidingsprofiel>, isEdit: boolean) {
+        if (isEdit) {
+            setRows(rows.map((row) => row.id === opleidingsprofiel.id ? { ...row, ...opleidingsprofiel } : row));
+        } else {
+            setRows([...rows, opleidingsprofiel as Opleidingsprofiel]);
+        }
+        
+        postOpleidingsprofiel(opleidingsprofiel);
+    }
 
     return (
     <>
@@ -95,13 +115,13 @@ export default function opleidingsprofielen() {
               <>
                 <ModalHeader className="flex flex-col gap-1">Opleidingsprofiel toevoegen</ModalHeader>
                 <ModalBody>
-                  <OpleidingsprofielForm/>
+                  <OpleidingsprofielForm editingOpleidingsprofiel={editingOpleidingsprofiel} setSavedOpleidingsprofiel={setSavedOpleidingsprofiel} />
                 </ModalBody>
                 <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
+                  <Button color="danger" variant="light" onPress={() => {onClose(); setEditingOpleidingsprofiel(undefined)}}>
                     Close
                   </Button>
-                  <Button type="submit" form='opleidingsprofielForm' color="primary" onPress={() => {onClose();}}>
+                  <Button type="submit" form='opleidingsprofielForm' color="primary" onPress={() => {onClose(); setEditingOpleidingsprofiel(undefined)}}>
                     Opslaan
                   </Button>
                 </ModalFooter>

@@ -10,6 +10,7 @@ import {
     DropdownMenu,
     Avatar,
   } from "@nextui-org/react";
+import { useAuth } from "../contexts/AuthProvider";
 
   export const AcmeLogo = () => {
     return (
@@ -24,26 +25,59 @@ import {
     );
   };
 export default function Navigation() {
-    return (
-      <Navbar>
-      <NavbarBrand>
-        <AcmeLogo />
-        <p className="font-bold text-inherit">ICDE</p>
-      </NavbarBrand>
+  const { user, authenticationToken, logout } = useAuth();
 
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
-      <NavbarItem>
-          <Link color="foreground" href="/">
-            Home
-          </Link>
-        </NavbarItem>
+  return (
+    <Navbar>
+    <NavbarBrand>
+      <AcmeLogo />
+      <p className="font-bold text-inherit">ICDE</p>
+    </NavbarBrand>
+
+    <NavbarContent className="hidden sm:flex gap-4" justify="center">
+    <NavbarItem>
+        <Link color="foreground" href="/">
+          Home
+        </Link>
+      </NavbarItem>
+      { user != undefined && authenticationToken !== undefined &&
         <NavbarItem>
           <Link color="foreground" href="/onderwijseenheden">
             Onderwijseenheden
           </Link> 
         </NavbarItem>
-      </NavbarContent>
+      }
+      { user != undefined && authenticationToken !== undefined &&
+        <NavbarItem>
+          <Link color="foreground" href="/templates">
+            Templates
+          </Link> 
+        </NavbarItem>
+      }
+     { user != undefined && authenticationToken !== undefined &&
+        <NavbarItem>
+          <Link color="foreground" href="/methodieken">
+            Methodieken
+          </Link> 
+        </NavbarItem>
+      }
+      { user != undefined && authenticationToken !== undefined &&
+        <NavbarItem>
+          <Link color="foreground" href="/opleidingsprofielen">
+            Opleidingsprofielen
+          </Link> 
+        </NavbarItem>
+      }
+      { user != undefined && authenticationToken !== undefined &&
+        <NavbarItem>
+          <Link color="foreground" href="/opleidingen">
+            Opleidingen
+          </Link> 
+        </NavbarItem>
+      }
+    </NavbarContent>
 
+    { user != undefined && authenticationToken !== undefined &&
       <NavbarContent as="div" justify="end"> 
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
@@ -59,21 +93,16 @@ export default function Navigation() {
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
             <DropdownItem key="profile" className="h-14 gap-2">
-              <p className="font-semibold">Signed in as</p>
-              <p className="font-semibold">zoey@example.com</p>
+              <p className="font-semibold">Ingelogd als</p>
+              <p className="font-semibold">{user.email}</p>
             </DropdownItem>
-            <DropdownItem key="settings">My Settings</DropdownItem>
-            <DropdownItem key="team_settings">Team Settings</DropdownItem>
-            <DropdownItem key="analytics">Analytics</DropdownItem>
-            <DropdownItem key="system">System</DropdownItem>
-            <DropdownItem key="configurations">Configurations</DropdownItem>
-            <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
-            <DropdownItem key="logout" color="danger">
+            <DropdownItem key="logout" color="danger" onPress={logout}>
               Log Out
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </NavbarContent>
-    </Navbar>
-    );
+    }
+  </Navbar>
+  );
 }

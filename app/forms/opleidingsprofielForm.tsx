@@ -1,10 +1,14 @@
 import { Form, Input, Select, SelectItem } from "@nextui-org/react";
 import React, { FormEvent, useEffect } from "react";
 import { Opleiding, Opleidingsprofiel } from "../types/types";
-import { getOpleidingen, postOpleiding, postOpleidingsprofiel } from "../apiService";
+import { getOpleidingen } from "../apiService";
 
+type OpleidingsprofielFormProps = {
+    setSavedOpleidingsprofiel: (opleidingsprofiel: Partial<Opleidingsprofiel>, isEdit: boolean) => void;
+    editingOpleidingsprofiel?: Partial<Opleidingsprofiel> | undefined;
+};
 
-export default function OpleidingsprofielForm() {
+export const OpleidingsprofielForm: React.FC<OpleidingsprofielFormProps> = ({ editingOpleidingsprofiel, setSavedOpleidingsprofiel }) => {
     
     const [errors, setErrors] = React.useState({});
     const [submitted, setSubmitted] = React.useState(null);
@@ -18,10 +22,11 @@ export default function OpleidingsprofielForm() {
         e.preventDefault();
         const opleidingsprofiel: Partial<Opleidingsprofiel> = {
             naam: data.Naam.toString(),
-            opleiding: selectedOpleiding
+            opleiding: selectedOpleiding ?? editingOpleidingsprofiel?.opleiding,
+            id: (editingOpleidingsprofiel?.id ?? 0),
         }  
 
-        postOpleidingsprofiel(opleidingsprofiel);
+        setSavedOpleidingsprofiel(opleidingsprofiel, editingOpleidingsprofiel !== undefined);
     }
 
     useEffect(() => {
@@ -40,6 +45,7 @@ export default function OpleidingsprofielForm() {
                 id="opleidingsprofielForm"
                 >
                     <Input
+                        defaultValue={editingOpleidingsprofiel?.naam}
                         isRequired
                         errorMessage={({validationDetails}) => {
                             if (validationDetails.valueMissing) {
@@ -53,7 +59,9 @@ export default function OpleidingsprofielForm() {
                         name="Naam"
                         placeholder="Voer een naam in"
                     />
-                    <Select label="Selecteer een beoordeling" name="Beoordeling" onChange={(e) => {
+                    <Select label="Selecteer een beoordeling" name="Beoordeling" 
+                    defaultSelectedKeys={editingOpleidingsprofiel?.opleiding ? [editingOpleidingsprofiel.opleiding.id.toString()] : undefined}
+                    onChange={(e) => {
                         const selected = opleidingen?.find(opleiding => opleiding.id === Number(e.target.value));
                         setSelectedOpleiding(selected);
                     }}>
